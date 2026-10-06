@@ -19,6 +19,11 @@ table{border-collapse:collapse;background:var(--pn);border-radius:12px;overflow:
 th,td{padding:8px 18px;text-align:center}th{text-align:left;color:var(--sub)}
 #leave{position:fixed;bottom:10px;right:10px;z-index:10;display:none;background:#34566b;color:var(--ink);padding:6px 16px;font-size:14px}
 body{padding-bottom:56px}
+.hd{display:none}.set.hon .hd{display:block}
+select{font:inherit;border-radius:10px;border:2px solid #34566b;background:#0f1b24;color:var(--ink);padding:8px}
+select:disabled{opacity:.55}
+.card .hint{min-height:1.4em;font-size:12px;color:var(--sub)}.card .hint b{font-size:20px;color:var(--c)}
+.hb{color:var(--sub);font-weight:500;font-size:12px}
 td.w{color:var(--ok);font-weight:900}
 .btns{display:flex;gap:10px}
 .btns .sub2{background:#34566b;color:var(--ink)}
@@ -76,11 +81,16 @@ button:disabled{opacity:.35;cursor:not-allowed}
 <div id="room">
   <h1 id="rt"></h1>
   <div id="rp"></div>
-  <div class="set">
+  <div class="set" id="set">
     <label for="sT">持ち時間（秒）</label><input id="sT" type="number" min="30" max="600">
     <label for="sP">誤答ペナルティ（秒）</label><input id="sP" type="number" min="0" max="60">
     <label for="sB">正解で時間を加算</label><input id="sB" type="checkbox">
     <label for="sBs">加算する秒数</label><input id="sBs" type="number" min="1" max="60">
+    <label for="hOn">ハンデを設定する</label><input id="hOn" type="checkbox">
+    <label class="hd" for="hT">ハンデを受ける人</label><select id="hT" class="hd"><option value="0">1P</option><option value="1">2P</option></select>
+    <label class="hd" for="hE">持ち時間を追加</label><input id="hE" class="hd" type="checkbox">
+    <label class="hd" for="hEs">　追加する秒数</label><input id="hEs" class="hd" type="number" min="1" max="300">
+    <label class="hd" for="hD">図鑑番号の下1桁を表示</label><input id="hD" class="hd" type="checkbox">
   </div>
   <div id="rmsg"></div>
   <button id="rdy" disabled>準備OK</button>
@@ -120,8 +130,9 @@ $("go").onclick=()=>{
 socket.on("err",m=>$("err").textContent=m);
 socket.on("joined",({idx})=>{me=idx});
 let myReady=false;
-const IDS=["sT","sP","sB","sBs"];
-const sendSet=()=>socket.emit("settings",{time:$("sT").value,penalty:$("sP").value,bonusOn:$("sB").checked,bonus:$("sBs").value});
+const IDS=["sT","sP","sB","sBs","hOn","hT","hE","hEs","hD"];
+const sendSet=()=>socket.emit("settings",{time:$("sT").value,penalty:$("sP").value,bonusOn:$("sB").checked,bonus:$("sBs").value,
+  handi:{on:$("hOn").checked,target:$("hT").value,extraOn:$("hE").checked,extra:$("hEs").value,digitOn:$("hD").checked}});
 IDS.forEach(id=>$(id).onchange=e=>{sendSet();if(e.target.type==="number")e.target.blur()});
 $("rdy").onclick=()=>socket.emit("ready",!myReady);
 $("again").onclick=()=>socket.emit("rematch");
@@ -139,7 +150,11 @@ socket.on("room_state",s=>{
     :`<div>${p+1}P：参加待ち…</div>`).join("");
   const put=(id,v,chk)=>{const e=$(id);if(document.activeElement===e)return;chk?e.checked=v:e.value=v};
   put("sT",st.time);put("sP",st.penalty);put("sB",st.bonusOn,1);put("sBs",st.bonus);
-  IDS.forEach(id=>$(id).disabled=!host);$("sBs").disabled=!host||!st.bonusOn;
+  const hd=st.handi;
+  put("hOn",hd.on,1);put("hT",hd.target);put("hE",hd.extraOn,1);put("hEs",hd.extra);put("hD",hd.digitOn,1);
+  [0,1].forEach(p=>$("hT").options[p].textContent=`${p+1}P${s.names[p]?`（${s.names[p]}）`:""}`);
+  $("set").classList.toggle("hon",hd.on); // ハンデOFFなら内容を非表示
+  IDS.forEach(id=>$(id).disabled=!host);$("sBs").disabled=!host||!st.bonusOn;$("hEs").disabled=!host||!hd.extraOn;
   $("rdy").disabled=s.count<2;$("rdy").textContent=myReady?"準備を取り消す":"準備OK";
   $("rmsg").textContent=s.count<2?"相手の参加を待っています":host?"設定を決めたら、両者が準備OKでスタート（設定を変えると準備はリセットされます）":"設定を確認して準備OKを押してください（設定はホストが決めます）";
 });
@@ -168,8 +183,8 @@ function setTurn(t){
   if($("sub"))$("sub").disabled=me!==t;
   const f=$(`i${me}_0`); if(me===t&&f)f.focus();
 }
-function cards(p,ids){
-  $("c"+p).innerHTML=ids.map((id,k)=>`<div class="card"><img src="${IMG(id)}" alt=""><b>${NAMES[id-1]}</b>
+function cards(p,ids,hint){
+  $("c"+p).innerHTML=ids.map((id,k)=>`<div class="card"><img src="${IMG(id)}" alt=""><b>${NAMES[id-1]}</b><div class="hint">${hint?`下1桁 <b>${hint[k]}</b>`:""}</div>
     <input id="i${p}_${k}" inputmode="numeric" maxlength="3" autocomplete="off" ${p===me?"":"readonly"}>
     <div class="reveal" id="a${p}_${k}"></div></div>`).join("");
   if(p===me)[0,1,2].forEach(k=>{
@@ -196,12 +211,16 @@ socket.on("state",s=>{
   names=s.names.map((n,i)=>n||`${i+1}P`);
   if(s.names.length<2||!s.started)return;
   if(!$("P0"))build();
-  [0,1].forEach(p=>{$("n"+p).textContent=`${names[p]}${p===me?"（あなた）":""}`;$("t"+p).dataset.v=s.time[p]});
+  const hd=s.settings.handi,tag=p=>{
+    if(!hd.on||hd.target!==p)return "";const a=[];
+    if(hd.extraOn)a.push(`+${hd.extra}秒`);if(hd.digitOn)a.push("下1桁ヒント");
+    return a.length?` <small class="hb">🎁ハンデ ${a.join(" / ")}</small>`:"";};
+  [0,1].forEach(p=>{$("n"+p).innerHTML=`${names[p]}${p===me?"（あなた）":""}${tag(p)}`;$("t"+p).dataset.v=s.time[p]});
   times(s.time);setTurn(s.turn);
 });
-socket.on("question_updated",({player,ids})=>{
+socket.on("question_updated",({player,ids,hint})=>{
   if(!$("P0"))build();
-  cards(player,ids);
+  cards(player,ids,hint);
   log(player,"新しい3匹が出題されました");
   if(player!==me)$("s"+player).textContent=`${names[player]}が考え中…`;
 });
