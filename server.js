@@ -11,7 +11,7 @@ const cleanSettings = s => ({
   bonus: clamp(s.bonus, 1, 60, 5)         // 加算秒数
 });
 const rnd3 = () => { const s = new Set(); while (s.size < 3) s.add(1 + Math.floor(Math.random() * MAX_ID)); return [...s]; };
-const roomState = r => ({ phase: r.phase, names: r.names, settings: r.settings, ready: r.ready, count: r.players.length });
+const roomState = r => ({ id: r.id, phase: r.phase, names: r.names, settings: r.settings, ready: r.ready, count: r.players.length });
 const sendRoom = r => io.to(r.id).emit('room_state', roomState(r));
 const snapshot = r => ({ time: r.time, turn: r.turn, q: r.q, names: r.names, started: r.phase === 'playing' });
 
@@ -41,7 +41,9 @@ io.on('connection', s => {
   const ctx = () => { const { room, idx } = s.data || {}; return { r: rooms[room], idx, room }; };
 
   s.on('join', ({ room, name }) => {
-    room = String(room || '').trim().slice(0, 20); if (!room) return s.emit('err', 'ルームIDを入力してください');
+    // 全角→半角、大文字→小文字、英数字以外は除去（別部屋になるのを防ぐ）
+    room = String(room || '').normalize('NFKC').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20);
+    if (!room) return s.emit('err', 'ルームIDは半角英数字で入力してください');
     const r = rooms[room] || (rooms[room] = {
       id: room, players: [], names: [], phase: 'waiting', ready: [false, false],
       settings: cleanSettings({}), time: [0, 0], turn: 0, q: [[], []], lock: false, stats: []
@@ -84,7 +86,7 @@ io.on('connection', s => {
   s.on('submit', answers => {
     const { r, idx, room } = ctx();
     if (!r || r.phase !== 'playing' || r.lock || r.turn !== idx || !Array.isArray(answers)) return;
-    const results = r.q[idx].map((id, i) => Number(answers[i]) === id);
+    const results = r.q[idx].map((id, i) => Number(String(answers[i]).normalize('NFKC')) === id);
     const wrong = results.filter(ok => !ok).length;
     if (wrong === 0) {
       r.stats[idx].ok++;
@@ -97,7 +99,7 @@ io.on('connection', s => {
       r.stats[idx].ng++;
       const penalty = r.settings.penalty;
       r.time[idx] -= penalty; r.lock = true;
-      io.to(room).emit('answer_result', { player: idx, ok: false, wrong, penalty, results, ids: r.q[idx], given: answers.map(Number) });
+      io.to(room).emit('answer_result', { player: idx, ok: false, wrong, penalty, results, ids: r.q[idx], given: answers.map(a => Number(String(a).normalize('NFKC'))) });
       io.to(room).emit('tick', { time: r.time, turn: r.turn });
       if (r.time[idx] <= 0) return finish(r, idx);
       setTimeout(() => { // 結果を見せたあと、3匹とも入れ替える
