@@ -8,14 +8,25 @@ const cleanSettings = s => ({
   time: clamp(s.time, 30, 600, 120),      // 持ち時間(秒)
   penalty: clamp(s.penalty, 0, 60, 10),   // 誤答ペナルティ(秒)
   bonusOn: !!s.bonusOn,                   // 正解時の加算 ON/OFF
-  bonus: clamp(s.bonus, 1, 60, 5)         // 加算秒数
+  bonus: clamp(s.bonus, 1, 60, 5),        // 加算秒数
+  handi: (h => ({                         // ハンデ
+    on: !!h.on,
+    target: Number(h.target) === 0 ? 0 : 1,  // 0=1P, 1=2P（ハンデを受ける側）
+    extraOn: !!h.extraOn, extra: clamp(h.extra, 1, 300, 30), // 持ち時間の追加
+    digitOn: !!h.digitOn                     // 図鑑番号の下1桁を提示
+  }))(s.handi || {})
 });
 const rnd3 = () => { const s = new Set(); while (s.size < 3) s.add(1 + Math.floor(Math.random() * MAX_ID)); return [...s]; };
 const roomState = r => ({ id: r.id, phase: r.phase, names: r.names, settings: r.settings, ready: r.ready, count: r.players.length });
 const sendRoom = r => io.to(r.id).emit('room_state', roomState(r));
-const snapshot = r => ({ time: r.time, turn: r.turn, q: r.q, names: r.names, started: r.phase === 'playing' });
+const snapshot = r => ({ settings: r.settings, time: r.time, turn: r.turn, q: r.q, names: r.names, started: r.phase === 'playing' });
 
-function newQuestion(r, p) { r.q[p] = rnd3(); io.to(r.id).emit('question_updated', { player: p, ids: r.q[p] }); }
+function newQuestion(r, p) {
+  r.q[p] = rnd3();
+  const h = r.settings.handi;
+  const hint = h.on && h.digitOn && h.target === p ? r.q[p].map(i => i % 10) : null; // 下1桁ヒント
+  io.to(r.id).emit('question_updated', { player: p, ids: r.q[p], hint });
+}
 
 function finish(r, loser) {
   clearInterval(r.timer); r.phase = 'done'; r.lock = false;
@@ -25,6 +36,8 @@ function finish(r, loser) {
 function start(r) {
   r.phase = 'playing'; r.turn = 0; r.lock = false; r.q = [[], []];
   r.time = [r.settings.time, r.settings.time];
+  const h = r.settings.handi;
+  if (h.on && h.extraOn) r.time[h.target] += h.extra; // ハンデ：持ち時間の追加
   r.stats = [{ ok: 0, ng: 0 }, { ok: 0, ng: 0 }];
   sendRoom(r);
   io.to(r.id).emit('state', snapshot(r));
