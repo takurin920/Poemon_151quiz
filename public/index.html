@@ -19,20 +19,7 @@ table{border-collapse:collapse;background:var(--pn);border-radius:12px;overflow:
 th,td{padding:8px 18px;text-align:center}th{text-align:left;color:var(--sub)}
 #leave{position:fixed;bottom:10px;right:10px;z-index:10;display:none;background:#34566b;color:var(--ink);padding:6px 16px;font-size:14px}
 body{padding-bottom:56px}
-.dt,.hd{display:none}
-.set.open .dt:not(.hd){display:block}.set.open .dt.chk{display:flex}.set.open.hon .dt.hd{display:block}
-.set.solo .vs{display:none!important}.set:not(.solo) .so{display:none!important}
-.chk{flex-direction:column;gap:6px}.chk label{display:flex;align-items:center;gap:8px}
-button.sub2{background:#34566b;color:var(--ink)}
-#cd{position:fixed;inset:0;z-index:8;display:none;flex-direction:column;align-items:center;justify-content:center;background:#14232ef5}
-#cdn{font-weight:900;font-size:min(40vw,40vh);line-height:1;color:var(--p0);animation:cdp 1s ease-out}
-@keyframes cdp{from{transform:scale(1.7);opacity:0}to{transform:scale(1);opacity:1}}
-#over{justify-content:safe center}
-#ovl{display:flex;flex-direction:column;gap:8px;align-items:center}.lh{font-weight:900}
-.lrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-.lc{background:var(--pn);border-radius:12px;padding:8px 10px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:108px;outline:3px solid transparent;font-size:13px}
-.lc img{width:64px;image-rendering:pixelated}.lc .v{font-weight:900;font-size:15px}
-.lc.good{outline-color:var(--ok)}.lc.bad{outline-color:var(--ng)}.lc.good .v{color:var(--ok)}.lc.bad .v{color:var(--ng)}
+.hd{display:none}.set.hon .hd{display:block}
 select{font:inherit;border-radius:10px;border:2px solid #34566b;background:#0f1b24;color:var(--ink);padding:8px}
 select:disabled{opacity:.55}
 .card .hint{min-height:1.4em;font-size:12px;color:var(--sub)}.card .hint b{font-size:20px;color:var(--c)}
@@ -56,7 +43,7 @@ button:disabled{opacity:.35;cursor:not-allowed}
 .timer.low{color:var(--ng);animation:blink .6s steps(2) infinite}
 @keyframes blink{50%{opacity:.25}}
 .status{color:var(--sub);min-height:1.5em;margin:4px 0 8px}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(84px,1fr));gap:8px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .card{background:#0f1b24;border-radius:12px;padding:8px 4px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;transition:opacity .2s}
 .panel:not(.active) .card{opacity:.7}
 .card img{width:96px;max-width:100%;image-rendering:pixelated;aspect-ratio:1}
@@ -81,7 +68,7 @@ button:disabled{opacity:.35;cursor:not-allowed}
 @keyframes shake{20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-7px)}80%{transform:translateX(7px)}}
 @media(prefers-reduced-motion:reduce){.panel,.pop,.timer{animation-duration:.01s!important}}
 
-/* バージョン表示用スタイル */
+  /* バージョン表示用スタイル */
 .version-tag {
   position: fixed;
   bottom: 8px;
@@ -96,11 +83,10 @@ button:disabled{opacity:.35;cursor:not-allowed}
 
 <div id="lobby">
   <h1>図鑑番号バトル</h1>
-  <p>ポケモンの図鑑番号を答えて、手番を渡そう。持ち時間が先に尽きたら負け。</p>
+  <p>3匹の図鑑番号（1〜151）を答えて、手番を渡そう。持ち時間が先に尽きたら負け。</p>
   <input id="nm" placeholder="名前" maxlength="10">
-  <input id="rm" placeholder="ルームID（半角英数字）" maxlength="20" inputmode="latin" autocapitalize="off" autocomplete="off" spellcheck="false">
+  <input id="rm" placeholder="ルームID（半角英数字・大小文字は区別なし）" maxlength="20" inputmode="latin" autocapitalize="off" autocomplete="off" spellcheck="false">
   <button id="go">対戦に参加</button>
-  <button id="solo" class="sub2">ひとり練習モード</button>
   <div id="err"></div>
 </div>
 
@@ -110,52 +96,43 @@ button:disabled{opacity:.35;cursor:not-allowed}
   <div class="set" id="set">
     <label for="sT">持ち時間（秒）</label><input id="sT" type="number" min="30" max="600">
     <label for="sP">誤答ペナルティ（秒）</label><input id="sP" type="number" min="0" max="60">
-    <label class="vs" for="sB">正解で時間を加算</label><input class="vs" id="sB" type="checkbox">
-    <label class="vs" for="sBs">加算する秒数</label><input class="vs" id="sBs" type="number" min="1" max="120">
-    <button id="detb" class="sub2" type="button" style="grid-column:1/-1">詳細設定 ▼</button>
-    <label class="dt" for="cN0">出題匹数 1〜5<span id="cl0"></span></label><input class="dt" id="cN0" type="number" min="1" max="5">
-    <label class="dt vs" for="cN1">出題匹数 1〜5<span id="cl1"></span></label><input class="dt vs" id="cN1" type="number" min="1" max="5">
-    <label class="dt">出題範囲</label>
-    <div class="dt chk"><label><input id="rK" type="checkbox">カントー（1〜151）</label><label><input id="rJ" type="checkbox">ジョウト（152〜251）</label></div>
-    <label class="dt so" for="sH">図鑑番号の下1桁を表示</label><input class="dt so" id="sH" type="checkbox">
-    <label class="dt vs" for="hOn">ハンデを設定する</label><input class="dt vs" id="hOn" type="checkbox">
-    <label class="dt hd vs" for="hT">ハンデを受ける人</label><select id="hT" class="dt hd vs"><option value="0">1P</option><option value="1">2P</option></select>
-    <label class="dt hd vs" for="hE">持ち時間を追加</label><input id="hE" class="dt hd vs" type="checkbox">
-    <label class="dt hd vs" for="hEs"> 追加する秒数</label><input id="hEs" class="dt hd vs" type="number" min="1" max="300">
-    <label class="dt hd vs" for="hD">図鑑番号の下1桁を表示</label><input id="hD" class="dt hd vs" type="checkbox">
+    <label for="sB">正解で時間を加算</label><input id="sB" type="checkbox">
+    <label for="sBs">加算する秒数</label><input id="sBs" type="number" min="1" max="60">
+    <label for="hOn">ハンデを設定する</label><input id="hOn" type="checkbox">
+    <label class="hd" for="hT">ハンデを受ける人</label><select id="hT" class="hd"><option value="0">1P</option><option value="1">2P</option></select>
+    <label class="hd" for="hE">持ち時間を追加</label><input id="hE" class="hd" type="checkbox">
+    <label class="hd" for="hEs">　追加する秒数</label><input id="hEs" class="hd" type="number" min="1" max="300">
+    <label class="hd" for="hD">図鑑番号の下1桁を表示</label><input id="hD" class="hd" type="checkbox">
   </div>
   <div id="rmsg"></div>
   <button id="rdy" disabled>準備OK</button>
 </div>
 
-<div id="cd"><div id="cdn"></div><p>まもなく開始…</p></div>
 <div id="game"></div>
 <button id="leave">退出</button>
-<div id="over"><h1 id="ovt"></h1><table id="ovs"></table><div id="ovl"></div><div id="ovn"></div>
+<div id="over"><h1 id="ovt"></h1><table id="ovs"></table><div id="ovn"></div>
   <div class="btns"><button id="again">同じ相手でもう一度</button><button class="sub2" onclick="location.reload()">最初に戻る</button></div></div>
-  <div class="version-tag">v.0.0.2</div>
+  <div class="version-tag">v.0.0.1</div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-const NAMES="フシギダネ,フシギソウ,フシギバナ,ヒトカゲ,リザード,リザードン,ゼニガメ,カメール,カメックス,キャタピー,トランセル,バタフリー,ビードル,コクーン,スピアー,ポッポ,ピジョン,ピジョット,コラッタ,ラッタ,オニスズメ,オニドリル,アーボ,アーボック,ピカチュウ,ライチュウ,サンド,サンドパン,ニドラン♀,ニドリーナ,ニドクイン,ニドラン♂,ニドリーノ,ニドキング,ピッピ,ピクシー,ロコン,キュウコン,プリン,プクリン,ズバット,ゴルバット,ナゾノクサ,クサイハナ,ラフレシア,パラス,パラセクト,コンパン,モルフォン,ディグダ,ダグトリオ,ニャース,ペルシアン,コダック,ゴルダック,マンキー,オコリザル,ガーディ,ウインディ,ニョロモ,ニョロゾ,ニョロボン,ケーシィ,ユンゲラー,フーディン,ワンリキー,ゴーリキー,カイリキー,マダツボミ,ウツドン,ウツボット,メノクラゲ,ドククラゲ,イシツブテ,ゴローン,ゴローニャ,ポニータ,ギャロップ,ヤドン,ヤドラン,コイル,レアコイル,カモネギ,ドードー,ドードリオ,パウワウ,ジュゴン,ベトベター,ベトベトン,シェルダー,パルシェン,ゴース,ゴースト,ゲンガー,イワーク,スリープ,スリーパー,クラブ,キングラー,ビリリダマ,マルマイン,タマタマ,ナッシー,カラカラ,ガラガラ,サワムラー,エビワラー,ベロリンガ,ドガース,マタドガス,サイホーン,サイドン,ラッキー,モンジャラ,ガルーラ,タッツー,シードラ,トサキント,アズマオウ,ヒトデマン,スターミー,バリヤード,ストライク,ルージュラ,エレブー,ブーバー,カイロス,ケンタロス,コイキング,ギャラドス,ラプラス,メタモン,イーブイ,シャワーズ,サンダース,ブースター,ポリゴン,オムナイト,オムスター,カブト,カブトプス,プテラ,カビゴン,フリーザー,サンダー,ファイヤー,ミニリュウ,ハクリュー,カイリュー,ミュウツー,ミュウ,チコリータ,ベイリーフ,メガニウム,ヒノアラシ,マグマラシ,バクフーン,ワニノコ,アリゲイツ,オーダイル,オタチ,オオタチ,ホーホー,ヨルノズク,レディバ,レディアン,イトマル,アリアドス,クロバット,チョンチー,ランターン,ピチュー,ピィ,ププリン,トゲピー,トゲチック,ネイティ,ネイティオ,メリープ,モココ,デンリュウ,キレイハナ,マリル,マリルリ,ウソッキー,ニョロトノ,ハネッコ,ポポッコ,ワタッコ,エイパム,ヒマナッツ,キマワリ,ヤンヤンマ,ウパー,ヌオー,エーフィ,ブラッキー,ヤミカラス,ヤドキング,ムウマ,アンノーン,ソーナンス,キリンリキ,クヌギダマ,フォレトス,ノコッチ,グライガー,ハガネール,ブルー,グランブル,ハリーセン,ハッサム,ツボツボ,ヘラクロス,ニューラ,ヒメグマ,リングマ,マグマッグ,マグカルゴ,ウリムー,イノムー,サニーゴ,テッポウオ,オクタン,デリバード,マンタイン,エアームド,デルビル,ヘルガー,キングドラ,ゴマゾウ,ドンファン,ポリゴン2,オドシシ,ドーブル,バルキー,カポエラー,ムチュール,エレキッド,ブビィ,ミルタンク,ハピナス,ライコウ,エンテイ,スイクン,ヨーギラス,サナギラス,バンギラス,ルギア,ホウオウ,セレビィ".split(",");
+const NAMES="フシギダネ,フシギソウ,フシギバナ,ヒトカゲ,リザード,リザードン,ゼニガメ,カメール,カメックス,キャタピー,トランセル,バタフリー,ビードル,コクーン,スピアー,ポッポ,ピジョン,ピジョット,コラッタ,ラッタ,オニスズメ,オニドリル,アーボ,アーボック,ピカチュウ,ライチュウ,サンド,サンドパン,ニドラン♀,ニドリーナ,ニドクイン,ニドラン♂,ニドリーノ,ニドキング,ピッピ,ピクシー,ロコン,キュウコン,プリン,プクリン,ズバット,ゴルバット,ナゾノクサ,クサイハナ,ラフレシア,パラス,パラセクト,コンパン,モルフォン,ディグダ,ダグトリオ,ニャース,ペルシアン,コダック,ゴルダック,マンキー,オコリザル,ガーディ,ウインディ,ニョロモ,ニョロゾ,ニョロボン,ケーシィ,ユンゲラー,フーディン,ワンリキー,ゴーリキー,カイリキー,マダツボミ,ウツドン,ウツボット,メノクラゲ,ドククラゲ,イシツブテ,ゴローン,ゴローニャ,ポニータ,ギャロップ,ヤドン,ヤドラン,コイル,レアコイル,カモネギ,ドードー,ドードリオ,パウワウ,ジュゴン,ベトベター,ベトベトン,シェルダー,パルシェン,ゴース,ゴースト,ゲンガー,イワーク,スリープ,スリーパー,クラブ,キングラー,ビリリダマ,マルマイン,タマタマ,ナッシー,カラカラ,ガラガラ,サワムラー,エビワラー,ベロリンガ,ドガース,マタドガス,サイホーン,サイドン,ラッキー,モンジャラ,ガルーラ,タッツー,シードラ,トサキント,アズマオウ,ヒトデマン,スターミー,バリヤード,ストライク,ルージュラ,エレブー,ブーバー,カイロス,ケンタロス,コイキング,ギャラドス,ラプラス,メタモン,イーブイ,シャワーズ,サンダース,ブースター,ポリゴン,オムナイト,オムスター,カブト,カブトプス,プテラ,カビゴン,フリーザー,サンダー,ファイヤー,ミニリュウ,ハクリュー,カイリュー,ミュウツー,ミュウ".split(",");
 const IMG=id=>`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
 const $=id=>document.getElementById(id), socket=io();
+// 全角→半角(NFKC)に直してから不要文字を除去。IME変換中は触らず、確定時に整える
 const fixAscii=(v,re)=>String(v).normalize("NFKC").replace(re,"");
 const normId=v=>fixAscii(v,/[^A-Za-z0-9]/g).toLowerCase();
-
 function bindFix(el,fn,after){
   const run=()=>{const v=fn(el.value);if(v!==el.value)el.value=v;if(after)after()};
   el.addEventListener("input",e=>{if(!e.isComposing)run()});
   el.addEventListener("compositionend",run);
 }
 bindFix($("rm"),normId);
-
 const showLeave=on=>$("leave").style.display=on?"block":"none";
 $("leave").onclick=()=>{
   if($("game").style.display==="grid"&&!confirm("退出すると対戦が終了します。退出しますか？"))return;
-  location.reload();
+  location.reload(); // 接続が切れ、サーバー側で退出処理される
 };
-
 let me=-1, turn=0, names=["1P","2P"], over=false;
 
 $("go").onclick=()=>{
@@ -163,58 +140,36 @@ $("go").onclick=()=>{
   if(!room)return $("err").textContent="ルームIDは半角英数字で入力してください";
   socket.emit("join",{room,name:$("nm").value});
 };
-
-$("solo").onclick=()=>{
-  socket.emit("solo",{name:$("nm").value});
-};
-
 socket.on("err",m=>$("err").textContent=m);
 socket.on("joined",({idx})=>{me=idx});
-
 let myReady=false;
-const IDS=["sT","sP","sB","sBs","cN0","cN1","rK","rJ","sH","hOn","hT","hE","hEs","hD"];
-let isSolo=false;
-
+const IDS=["sT","sP","sB","sBs","hOn","hT","hE","hEs","hD"];
 const sendSet=()=>socket.emit("settings",{time:$("sT").value,penalty:$("sP").value,bonusOn:$("sB").checked,bonus:$("sBs").value,
-  counts:[$("cN0").value,$("cN1").value],regions:{kanto:$("rK").checked,johto:$("rJ").checked},hint:$("sH").checked,
   handi:{on:$("hOn").checked,target:$("hT").value,extraOn:$("hE").checked,extra:$("hEs").value,digitOn:$("hD").checked}});
-
 IDS.forEach(id=>$(id).onchange=e=>{sendSet();if(e.target.type==="number")e.target.blur()});
-$("detb").onclick=()=>{const o=$("set").classList.toggle("open");$("detb").textContent=o?"詳細設定 ▲":"詳細設定 ▼"};
 $("rdy").onclick=()=>socket.emit("ready",!myReady);
 $("again").onclick=()=>socket.emit("rematch");
-
-socket.on("countdown",({n})=>{
-  $("cd").style.display="flex";const e=$("cdn");e.textContent=n;e.style.animation="none";void e.offsetWidth;e.style.animation="";
-});
-
 socket.on("room_state",s=>{
-  names=s.names.map((n,i)=>n||`${i+1}P`);isSolo=!!s.solo;
+  names=s.names.map((n,i)=>n||`${i+1}P`);
   showLeave(true);
   if(s.phase==="playing"){$("room").style.display="none";return}
-  if(s.phase==="countdown")return;
-  $("cd").style.display="none";
   $("lobby").style.display="none";$("over").style.display="none";
   $("game").style.display="none";$("game").innerHTML="";over=false;turn=0;
   $("room").style.display="flex";
   const host=me===0,st=s.settings;myReady=!!s.ready[me];
-  $("set").classList.toggle("solo",isSolo);
-  $("rt").textContent=isSolo?"ひとり練習（耐久）":`ルーム「${s.id}」`;
-  $("rp").innerHTML=isSolo?`<div>${s.names[0]}さん：持ち時間が尽きるまで挑戦</div>`:[0,1].map(p=>s.names[p]
-    ?`<div>${p+1}P${p?"":"（ホスト）"}${p===me?"（あなた）":""}：${s.names[p]} ${s.ready[p]?"✔ 準備OK":"…未準備"}</div>`
+  $("rt").textContent=`ルーム「${s.id}」`;
+  $("rp").innerHTML=[0,1].map(p=>s.names[p]
+    ?`<div>${p+1}P${p?"":"（ホスト）"}${p===me?"（あなた）":""}：${s.names[p]}　${s.ready[p]?"✔ 準備OK":"…未準備"}</div>`
     :`<div>${p+1}P：参加待ち…</div>`).join("");
-  const put=(id,v,chk)=>{const e=$(id);if(!chk&&document.activeElement===e)return;chk?e.checked=v:e.value=v};
+  const put=(id,v,chk)=>{const e=$(id);if(document.activeElement===e)return;chk?e.checked=v:e.value=v};
   put("sT",st.time);put("sP",st.penalty);put("sB",st.bonusOn,1);put("sBs",st.bonus);
-  put("cN0",st.counts[0]);put("cN1",st.counts[1]);put("rK",st.regions.kanto,1);put("rJ",st.regions.johto,1);put("sH",st.hint,1);
   const hd=st.handi;
   put("hOn",hd.on,1);put("hT",hd.target);put("hE",hd.extraOn,1);put("hEs",hd.extra);put("hD",hd.digitOn,1);
   [0,1].forEach(p=>$("hT").options[p].textContent=`${p+1}P${s.names[p]?`（${s.names[p]}）`:""}`);
-  $("cl0").textContent=isSolo?"":`（${s.names[0]||"1P"}）`;$("cl1").textContent=`（${s.names[1]||"2P"}）`;
-  $("set").classList.toggle("hon",hd.on);
+  $("set").classList.toggle("hon",hd.on); // ハンデOFFなら内容を非表示
   IDS.forEach(id=>$(id).disabled=!host);$("sBs").disabled=!host||!st.bonusOn;$("hEs").disabled=!host||!hd.extraOn;
-  $("rdy").disabled=!isSolo&&s.count<2;$("rdy").textContent=isSolo?"スタート":(myReady?"準備を取り消す":"準備OK");
-  $("rmsg").textContent=isSolo?"スタートすると5秒のカウントダウンのあと開始。詳細設定で匹数・範囲・ヒントを変えられます"
-    :s.count<2?"相手の参加を待っています":host?"設定を決めたら、両者が準備OKでスタート（設定を変えると準備はリセットされます）":"設定を確認して準備OKを押してください（設定はホストが決めます）";
+  $("rdy").disabled=s.count<2;$("rdy").textContent=myReady?"準備を取り消す":"準備OK";
+  $("rmsg").textContent=s.count<2?"相手の参加を待っています":host?"設定を決めたら、両者が準備OKでスタート（設定を変えると準備はリセットされます）":"設定を確認して準備OKを押してください（設定はホストが決めます）";
 });
 
 function build(){
@@ -226,44 +181,38 @@ function build(){
     <div class="row" id="r${p}"></div>
     <div class="log" id="l${p}"></div>
     <div class="pop" id="x${p}"></div></section>`).join("");
-  g.style.gridTemplateColumns=isSolo?"minmax(0,560px)":"";g.style.justifyContent=isSolo?"center":"";
-  if(isSolo)$("P1").style.display="none";
   $("r"+me).innerHTML=`<button id="sub">提出</button>`;
   $("sub").onclick=submit;
 }
-
 const fmt=t=>`${Math.floor(Math.max(t,0)/60)}:${String(Math.max(t,0)%60).padStart(2,"0")}`;
 function times(t){[0,1].forEach(p=>{const e=$("t"+p);e.textContent=fmt(t[p]);e.classList.toggle("low",t[p]<=10&&t[p]>0&&p===turn)})}
 function setTurn(t){
   turn=t;
   [0,1].forEach(p=>{
     $("P"+p).classList.toggle("active",p===t);
-    $("s"+p).textContent=p===t?(p===me?"あなたの番です。図鑑番号を入力":`${names[p]}が考え中…`):"待機中";
+    $("s"+p).textContent=p===t?(p===me?"あなたの番です。3匹の図鑑番号を入力":`${names[p]}が考え中…`):"待機中";
     document.querySelectorAll(`#c${p} input`).forEach(i=>i.disabled=!(p===me&&p===t));
   });
   if($("sub"))$("sub").disabled=me!==t;
   const f=$(`i${me}_0`); if(me===t&&f)f.focus();
 }
-
 function cards(p,ids,hint){
   $("c"+p).innerHTML=ids.map((id,k)=>`<div class="card"><img src="${IMG(id)}" alt=""><b>${NAMES[id-1]}</b><div class="hint">${hint?`下1桁 <b>${hint[k]}</b>`:""}</div>
     <input id="i${p}_${k}" inputmode="numeric" maxlength="3" autocomplete="off" ${p===me?"":"readonly"}>
     <div class="reveal" id="a${p}_${k}"></div></div>`).join("");
-  if(p===me)ids.forEach((_,k)=>{
+  if(p===me)[0,1,2].forEach(k=>{
     const i=$(`i${p}_${k}`);
-    bindFix(i,v=>fixAscii(v,/\D/g).slice(0,3),()=>socket.emit("typing",ids.map((_,j)=>$(`i${p}_${j}`).value!=="")));
-    i.onkeydown=e=>{if(e.isComposing||e.keyCode===229)return;if(e.key==="Enter"){k<ids.length-1?$(`i${p}_${k+1}`).focus():submit()}};
+    bindFix(i,v=>fixAscii(v,/\D/g).slice(0,3),()=>socket.emit("typing",[0,1,2].map(j=>$(`i${p}_${j}`).value!=="")));
+    i.onkeydown=e=>{if(e.isComposing||e.keyCode===229)return;if(e.key==="Enter"){k<2?$(`i${p}_${k+1}`).focus():submit()}};
   });
   setTurn(turn);
 }
-
 function submit(){
   if(me!==turn)return;
-  const a=[...document.querySelectorAll(`#c${me} input`)].map(i=>i.value);
-  if(a.some(v=>v===""))return $("s"+me).textContent=`${a.length}匹すべて入力してください`;
+  const a=[0,1,2].map(k=>$(`i${me}_${k}`).value);
+  if(a.some(v=>v===""))return $("s"+me).textContent="3つとも入力してください";
   socket.emit("submit",a);
 }
-
 function log(p,msg,cls){const l=$("l"+p);l.insertAdjacentHTML("afterbegin",`<div class="${cls}">${msg}</div>`)}
 function fx(p,kind,text){
   const P=$("P"+p),x=$("x"+p);
@@ -273,8 +222,7 @@ function fx(p,kind,text){
 
 socket.on("state",s=>{
   names=s.names.map((n,i)=>n||`${i+1}P`);
-  if((s.names.length<2&&!s.solo)||!s.started)return;
-  isSolo=!!s.solo;$("cd").style.display="none";
+  if(s.names.length<2||!s.started)return;
   if(!$("P0"))build();
   const hd=s.settings.handi,tag=p=>{
     if(!hd.on||hd.target!==p)return "";const a=[];
@@ -283,31 +231,27 @@ socket.on("state",s=>{
   [0,1].forEach(p=>{$("n"+p).innerHTML=`${names[p]}${p===me?"（あなた）":""}${tag(p)}`;$("t"+p).dataset.v=s.time[p]});
   times(s.time);setTurn(s.turn);
 });
-
 socket.on("question_updated",({player,ids,hint})=>{
   if(!$("P0"))build();
   cards(player,ids,hint);
-  log(player,`新しい${ids.length}匹が出題されました`);
+  log(player,"新しい3匹が出題されました");
   if(player!==me)$("s"+player).textContent=`${names[player]}が考え中…`;
 });
-
 socket.on("tick",({time,turn:t})=>{
   [0,1].forEach(p=>$("t"+p).dataset.v=time[p]);
   const changed=t!==turn; turn=t; times(time);
-  if(changed)setTurn(t);
+  if(changed)setTurn(t); // 手番が変わったときだけ更新（毎秒更新するとカーソルが飛ぶ）
 });
-
 socket.on("typing",({player,filled})=>{
   filled.forEach((f,k)=>{const i=$(`i${player}_${k}`);if(i)i.value=f?"●●":""});
   if(player===turn&&player!==me)$("s"+player).textContent=`${names[player]}が入力中… ${filled.map(f=>f?"●":"○").join("")}`;
 });
-
 socket.on("answer_result",r=>{
   const n=names[r.player];
   if(r.ok){
     r.ids.forEach((id,k)=>{$(`a${r.player}_${k}`).textContent=`#${id}`;$(`i${r.player}_${k}`).value=id});
     fx(r.player,"ok",r.bonus?`全問正解！ +${r.bonus}秒`:"全問正解！");
-    log(r.player,`${n}が全問正解！${r.bonus?` +${r.bonus}秒`:""} ${isSolo?"":" 手番移動"}（${r.ids.join(", ")}）`,"ok");
+    log(r.player,`${n}が全問正解！${r.bonus?` +${r.bonus}秒`:""} 手番移動（${r.ids.join(", ")}）`,"ok");
     log(1-r.player,`${n}が全問正解（${r.ids.join(", ")}）`,"ok");
   }else{
     fx(r.player,"ng",`-${r.penalty}秒ペナルティ`);
@@ -320,40 +264,26 @@ socket.on("answer_result",r=>{
     });
     document.querySelectorAll(`#c${r.player} input`).forEach(i=>i.disabled=true);
     if(r.player===me)$("sub").disabled=true;
-    $("s"+r.player).textContent="不正解… 問題を入れ替えます";
+    $("s"+r.player).textContent="不正解… 3匹を入れ替えます";
     const bad=r.results.map((g,k)=>g?null:`#${r.ids[k]}`).filter(Boolean).join(", ");
-    log(r.player,`${n}が誤答（${r.wrong}匹不正解）！ -${r.penalty}秒 正解: ${bad}`,"ng");
+    log(r.player,`${n}が誤答（${r.wrong}匹不正解）！ -${r.penalty}秒　正解: ${bad}`,"ng");
     log(1-r.player,`${n}が誤答（${r.wrong}匹不正解）-${r.penalty}秒`,"ng");
   }
 });
-
-function lastHtml(l){
-  if(!l)return "";
-  const who=names[l.player]+(l.player===me?"（あなた）":""),w=l.kind==="wrong";
-  const items=l.ids.map((id,k)=>{
-    const ok=w&&l.results[k];
-    return `<div class="lc ${w?(ok?"good":"bad"):""}"><img src="${IMG(id)}" alt=""><b>${NAMES[id-1]}</b>
-      <span class="v">${w?(ok?"✓ 正解":"✗ 不正解"):"— 未回答"}</span>
-      <span>答え: ${w?(l.given[k]||"未入力"):"—"}</span><span>正解: #${id}</span></div>`}).join("");
-  return `<div class="lh">最終問題（${who}）：${w?"誤答でタイムアップ":"時間切れ"}</div><div class="lrow">${items}</div>`;
-}
-
-socket.on("game_over",({solo,winner,time,stats,last})=>{
+socket.on("game_over",({winner,time,stats})=>{
   over=true;
-  const cols=solo?[0]:[0,1],cls=i=>!solo&&i===winner?"w":"";
-  $("ovt").textContent=solo?`終了！ 全問正解 ${stats[0].ok}回`:`${names[winner]}${winner===me?"（あなた）":""}の勝ち！`;
+  $("ovt").textContent=`${names[winner]}${winner===me?"（あなた）":""}の勝ち！`;
   const acc=i=>{const t=stats[i].ok+stats[i].ng;return t?Math.round(stats[i].ok/t*100)+"%":"-"};
-  const row=(l,f)=>`<tr><th>${l}</th>${cols.map(i=>`<td class="${cls(i)}">${f(i)}</td>`).join("")}</tr>`;
-  $("ovs").innerHTML=`<tr><th></th>${cols.map(i=>`<td class="${cls(i)}">${names[i]}${cls(i)?" 🏆":""}</td>`).join("")}</tr>`
-    +row("全問正解",i=>stats[i].ok+"回")+row("誤答",i=>stats[i].ng+"回")+row("正答率",acc)+(solo?"":row("残り時間",i=>fmt(time[i])));
-  $("ovl").innerHTML=lastHtml(last);
-  showLeave(false);$("ovn").textContent="";$("again").textContent=solo?"もう一度挑戦":"同じ相手でもう一度";$("again").style.display="";$("over").style.display="flex";
+  const row=(l,f)=>`<tr><th>${l}</th>${[0,1].map(i=>`<td class="${i===winner?"w":""}">${f(i)}</td>`).join("")}</tr>`;
+  $("ovs").innerHTML=`<tr><th></th>${[0,1].map(i=>`<td class="${i===winner?"w":""}">${names[i]}${i===winner?" 🏆":""}</td>`).join("")}</tr>`
+    +row("全問正解",i=>stats[i].ok+"回")+row("誤答",i=>stats[i].ng+"回")+row("正答率",acc)+row("残り時間",i=>fmt(time[i]));
+  showLeave(false);$("ovn").textContent="";$("again").style.display="";$("over").style.display="flex";
 });
-
 socket.on("opponent_left",()=>{
-  $("cd").style.display="none";
-  if(!over){$("ovt").textContent="対戦終了";$("ovs").innerHTML="";$("ovl").innerHTML=""}
+  if(!over){$("ovt").textContent="対戦終了";$("ovs").innerHTML=""}
   over=true;showLeave(false);$("ovn").textContent="相手が退出しました";$("again").style.display="none";
   $("room").style.display="none";$("over").style.display="flex";
+});
+</script></body></html>
 });
 </script></body></html>
