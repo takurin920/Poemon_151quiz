@@ -80,6 +80,18 @@ button:disabled{opacity:.35;cursor:not-allowed}
 .panel.shake-ng{animation:shake .5s;border-color:var(--ng)}
 @keyframes shake{20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-7px)}80%{transform:translateX(7px)}}
 @media(prefers-reduced-motion:reduce){.panel,.pop,.timer{animation-duration:.01s!important}}
+
+/* バージョン表示用スタイル */
+    .version-tag {
+      position: fixed;
+      bottom: 8px;
+      left: 8px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6); /* 背景に合わせて文字色や透明度を調整 */
+      font-family: monospace, sans-serif;
+      pointer-events: none; /* クリック操作を邪魔しないように設定 */
+      z-index: 9999;       /* 最前面に表示 */
+      
 </style></head><body>
 
 <div id="lobby">
@@ -121,6 +133,7 @@ button:disabled{opacity:.35;cursor:not-allowed}
 <button id="leave">退出</button>
 <div id="over"><h1 id="ovt"></h1><table id="ovs"></table><div id="ovl"></div><div id="ovn"></div>
   <div class="btns"><button id="again">同じ相手でもう一度</button><button class="sub2" onclick="location.reload()">最初に戻る</button></div></div>
+  <div class="version-tag">v.0.0.2</div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
