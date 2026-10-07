@@ -211,7 +211,7 @@ socket.on("room_state",s=>{
   [0,1].forEach(p=>$("hT").options[p].textContent=`${p+1}P${s.names[p]?`（${s.names[p]}）`:""}`);
   $("cl0").textContent=isSolo?"":`（${s.names[0]||"1P"}）`;$("cl1").textContent=`（${s.names[1]||"2P"}）`;
   $("set").classList.toggle("hon",hd.on);
-  IDS.forEach(id=>$(id).disabled=!host);$("sBs").disabled=!host\vert{}\vert{}!st.bonusOn;$("hEs").disabled=!host||!hd.extraOn;
+  IDS.forEach(id=>$(id).disabled=!host);$("sBs").disabled=!host||!st.bonusOn;$("hEs").disabled=!host||!hd.extraOn;
   $("rdy").disabled=!isSolo&&s.count<2;$("rdy").textContent=isSolo?"スタート":(myReady?"準備を取り消す":"準備OK");
   $("rmsg").textContent=isSolo?"スタートすると5秒のカウントダウンのあと開始。詳細設定で匹数・範囲・ヒントを変えられます"
     :s.count<2?"相手の参加を待っています":host?"設定を決めたら、両者が準備OKでスタート（設定を変えると準備はリセットされます）":"設定を確認して準備OKを押してください（設定はホストが決めます）";
