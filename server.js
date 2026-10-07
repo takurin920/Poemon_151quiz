@@ -11,13 +11,13 @@ const cleanSettings = (s, solo) => {
   let kanto = !!g.kanto, johto = !!g.johto;
   if (!kanto && !johto) kanto = true; // 地方は最低1つ
   return {
-    time: clamp(s.time, 30, 600, 120),            // 持ち時間(秒)
-    penalty: clamp(s.penalty, 0, 60, 10),         // 誤答ペナルティ(秒)
-    bonusOn: solo ? false : !!s.bonusOn,          // 正解時の加算（対戦のみ）
+    time: clamp(s.time, 30, 600, 120),             // 持ち時間(秒)
+    penalty: clamp(s.penalty, 0, 60, 10),          // 誤答ペナルティ(秒)
+    bonusOn: solo ? false : !!s.bonusOn,           // 正解時の加算（対戦のみ）
     bonus: clamp(s.bonus, 1, 60, 5),
     counts: [clamp(c[0], 1, 5, 3), clamp(c[1], 1, 5, 3)], // 出題匹数（1P/2P別）
     regions: { kanto, johto },                    // 出題範囲
-    hint: solo ? !!s.hint : false,                // ひとり練習：下1桁表示
+    hint: solo ? !!s.hint : false,                 // ひとり練習：下1桁表示
     handi: solo ? { on: false, target: 0, extraOn: false, extra: 30, digitOn: false } : {
       on: !!h.on, target: Number(h.target) === 0 ? 0 : 1,
       extraOn: !!h.extraOn, extra: clamp(h.extra, 1, 300, 30), digitOn: !!h.digitOn
@@ -30,8 +30,10 @@ const pick = (p, n) => { const a = p.slice(), out = []; while (out.length < n) o
 const roomState = r => ({ id: r.id, solo: !!r.solo, phase: r.phase, names: r.names, settings: r.settings, ready: r.ready, count: r.players.length });
 const sendRoom = r => io.to(r.id).emit('room_state', roomState(r));
 const snapshot = r => ({ solo: !!r.solo, settings: r.settings, time: r.time, turn: r.turn, q: r.q, names: r.names, started: r.phase === 'playing' });
+
+// 【修正箇所1】newRoom: デフォルトの phase を 'lobby' に統一
 const newRoom = (id, solo) => ({
-  id, solo, players: [], names: [], phase: solo ? 'lobby' : 'waiting', ready: [false, false],
+  id, solo, players: [], names: [], phase: 'lobby', ready: [false, false],
   settings: cleanSettings({}, solo), time: [0, 0], turn: 0, q: [[], []], lock: false, stats: [], last: null
 });
 
@@ -47,7 +49,7 @@ function finish(r, loser) {
   clearInterval(r.timer); r.phase = 'done'; r.lock = false;
   io.to(r.id).emit('game_over', {
     solo: !!r.solo, loser, winner: r.solo ? 0 : 1 - loser,
-    time: r.time.map(t => Math.max(t, 0)), stats: r.stats, last: r.last // lastは最終問題（結果画面で表示）
+    time: r.time.map(t => Math.max(t, 0)), stats: r.stats, last: r.last
   });
 }
 
@@ -55,20 +57,20 @@ function start(r) {
   r.phase = 'playing'; r.turn = 0; r.lock = false; r.q = [[], []];
   r.time = [r.settings.time, r.settings.time];
   const h = r.settings.handi;
-  if (h.on && h.extraOn) r.time[h.target] += h.extra; // ハンデ：持ち時間の追加
+  if (h.on && h.extraOn) r.time[h.target] += h.extra;
   r.stats = [{ ok: 0, ng: 0 }, { ok: 0, ng: 0 }];
   sendRoom(r);
   io.to(r.id).emit('state', snapshot(r));
   newQuestion(r, 0);
   r.timer = setInterval(() => {
-    if (r.lock) return; // 誤答の結果表示中は時計を止める
+    if (r.lock) return;
     r.time[r.turn]--;
     io.to(r.id).emit('tick', { time: r.time, turn: r.turn });
     if (r.time[r.turn] <= 0) finish(r, r.turn);
   }, 1000);
 }
 
-function countdown(r) { // 開始前カウントダウン
+function countdown(r) {
   r.phase = 'countdown'; sendRoom(r);
   let n = COUNTDOWN_SEC; io.to(r.id).emit('countdown', { n });
   r.cd = setInterval(() => {
@@ -83,19 +85,21 @@ io.on('connection', s => {
 
   s.on('join', ({ room, name }) => {
     if (s.data) return;
-    // 全角→半角、大文字→小文字、英数字以外は除去（別部屋になるのを防ぐ）
     room = String(room || '').normalize('NFKC').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20);
     if (!room) return s.emit('err', 'ルームIDは半角英数字で入力してください');
     const r = rooms[room] || (rooms[room] = newRoom(room, false));
     if (r.solo || r.players.length >= 2) return s.emit('err', 'このルームは満員です');
     const idx = r.players.length;
     r.players.push(s.id); r.names[idx] = cleanName(name) || `${idx + 1}P`;
-    r.ready = [false, false]; r.phase = 'lobby';
+    
+    // 【修正箇所2】readyの初期化のみ。phaseの強制上書きを解除
+    r.ready = [false, false];
+    
     s.join(room); s.data = { room, idx };
     s.emit('joined', { idx }); sendRoom(r);
   });
 
-  s.on('solo', ({ name } = {}) => { // ひとり練習モード（ルームID不要）
+  s.on('solo', ({ name } = {}) => {
     if (s.data) return;
     const id = 'solo' + s.id.replace(/[^a-z0-9]/gi, '');
     const r = rooms[id] = newRoom(id, true);
@@ -139,7 +143,7 @@ io.on('connection', s => {
       const bonus = r.settings.bonusOn ? r.settings.bonus : 0;
       r.time[idx] += bonus;
       io.to(room).emit('answer_result', { player: idx, ok: true, ids: r.q[idx], bonus });
-      if (!r.solo) r.turn = 1 - idx;   // 対戦は手番交代、ひとり練習は同じ人が続ける
+      if (!r.solo) r.turn = 1 - idx;
       newQuestion(r, r.turn);
       io.to(room).emit('tick', { time: r.time, turn: r.turn });
     } else {
@@ -149,7 +153,7 @@ io.on('connection', s => {
       r.last = { player: idx, ids: r.q[idx], kind: 'wrong', given, results };
       io.to(room).emit('answer_result', { player: idx, ok: false, wrong, penalty, results, ids: r.q[idx], given });
       io.to(room).emit('tick', { time: r.time, turn: r.turn });
-      setTimeout(() => { // 結果を見せたあと、終了 or 入れ替え
+      setTimeout(() => {
         if (rooms[room] !== r || r.phase !== 'playing') return;
         if (r.time[idx] <= 0) return finish(r, idx);
         r.lock = false; newQuestion(r, idx);
@@ -159,8 +163,8 @@ io.on('connection', s => {
 
   s.on('disconnect', () => {
     const { r, idx, room } = ctx(); if (!r || !r.players.includes(s.id)) return;
-    if (idx === 1 && ['waiting', 'lobby'].includes(r.phase)) { // ゲスト退出：ホストは待機に戻る
-      r.players.pop(); r.names.pop(); r.ready = [false, false]; r.phase = 'waiting'; return sendRoom(r);
+    if (idx === 1 && ['waiting', 'lobby'].includes(r.phase)) {
+      r.players.pop(); r.names.pop(); r.ready = [false, false]; r.phase = 'lobby'; return sendRoom(r);
     }
     clearInterval(r.timer); clearInterval(r.cd);
     io.to(room).emit('opponent_left'); delete rooms[room];
