@@ -82,16 +82,16 @@ button:disabled{opacity:.35;cursor:not-allowed}
 @media(prefers-reduced-motion:reduce){.panel,.pop,.timer{animation-duration:.01s!important}}
 
 /* バージョン表示用スタイル */
-    .version-tag {
-      position: fixed;
-      bottom: 8px;
-      left: 8px;
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.6); /* 背景に合わせて文字色や透明度を調整 */
-      font-family: monospace, sans-serif;
-      pointer-events: none; /* クリック操作を邪魔しないように設定 */
-      z-index: 9999;       /* 最前面に表示 */
-      
+.version-tag {
+  position: fixed;
+  bottom: 8px;
+  left: 8px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: monospace, sans-serif;
+  pointer-events: none;
+  z-index: 9999;
+}
 </style></head><body>
 
 <div id="lobby">
@@ -121,7 +121,7 @@ button:disabled{opacity:.35;cursor:not-allowed}
     <label class="dt vs" for="hOn">ハンデを設定する</label><input class="dt vs" id="hOn" type="checkbox">
     <label class="dt hd vs" for="hT">ハンデを受ける人</label><select id="hT" class="dt hd vs"><option value="0">1P</option><option value="1">2P</option></select>
     <label class="dt hd vs" for="hE">持ち時間を追加</label><input id="hE" class="dt hd vs" type="checkbox">
-    <label class="dt hd vs" for="hEs">　追加する秒数</label><input id="hEs" class="dt hd vs" type="number" min="1" max="300">
+    <label class="dt hd vs" for="hEs"> 追加する秒数</label><input id="hEs" class="dt hd vs" type="number" min="1" max="300">
     <label class="dt hd vs" for="hD">図鑑番号の下1桁を表示</label><input id="hD" class="dt hd vs" type="checkbox">
   </div>
   <div id="rmsg"></div>
@@ -140,20 +140,22 @@ button:disabled{opacity:.35;cursor:not-allowed}
 const NAMES="フシギダネ,フシギソウ,フシギバナ,ヒトカゲ,リザード,リザードン,ゼニガメ,カメール,カメックス,キャタピー,トランセル,バタフリー,ビードル,コクーン,スピアー,ポッポ,ピジョン,ピジョット,コラッタ,ラッタ,オニスズメ,オニドリル,アーボ,アーボック,ピカチュウ,ライチュウ,サンド,サンドパン,ニドラン♀,ニドリーナ,ニドクイン,ニドラン♂,ニドリーノ,ニドキング,ピッピ,ピクシー,ロコン,キュウコン,プリン,プクリン,ズバット,ゴルバット,ナゾノクサ,クサイハナ,ラフレシア,パラス,パラセクト,コンパン,モルフォン,ディグダ,ダグトリオ,ニャース,ペルシアン,コダック,ゴルダック,マンキー,オコリザル,ガーディ,ウインディ,ニョロモ,ニョロゾ,ニョロボン,ケーシィ,ユンゲラー,フーディン,ワンリキー,ゴーリキー,カイリキー,マダツボミ,ウツドン,ウツボット,メノクラゲ,ドククラゲ,イシツブテ,ゴローン,ゴローニャ,ポニータ,ギャロップ,ヤドン,ヤドラン,コイル,レアコイル,カモネギ,ドードー,ドードリオ,パウワウ,ジュゴン,ベトベター,ベトベトン,シェルダー,パルシェン,ゴース,ゴースト,ゲンガー,イワーク,スリープ,スリーパー,クラブ,キングラー,ビリリダマ,マルマイン,タマタマ,ナッシー,カラカラ,ガラガラ,サワムラー,エビワラー,ベロリンガ,ドガース,マタドガス,サイホーン,サイドン,ラッキー,モンジャラ,ガルーラ,タッツー,シードラ,トサキント,アズマオウ,ヒトデマン,スターミー,バリヤード,ストライク,ルージュラ,エレブー,ブーバー,カイロス,ケンタロス,コイキング,ギャラドス,ラプラス,メタモン,イーブイ,シャワーズ,サンダース,ブースター,ポリゴン,オムナイト,オムスター,カブト,カブトプス,プテラ,カビゴン,フリーザー,サンダー,ファイヤー,ミニリュウ,ハクリュー,カイリュー,ミュウツー,ミュウ,チコリータ,ベイリーフ,メガニウム,ヒノアラシ,マグマラシ,バクフーン,ワニノコ,アリゲイツ,オーダイル,オタチ,オオタチ,ホーホー,ヨルノズク,レディバ,レディアン,イトマル,アリアドス,クロバット,チョンチー,ランターン,ピチュー,ピィ,ププリン,トゲピー,トゲチック,ネイティ,ネイティオ,メリープ,モココ,デンリュウ,キレイハナ,マリル,マリルリ,ウソッキー,ニョロトノ,ハネッコ,ポポッコ,ワタッコ,エイパム,ヒマナッツ,キマワリ,ヤンヤンマ,ウパー,ヌオー,エーフィ,ブラッキー,ヤミカラス,ヤドキング,ムウマ,アンノーン,ソーナンス,キリンリキ,クヌギダマ,フォレトス,ノコッチ,グライガー,ハガネール,ブルー,グランブル,ハリーセン,ハッサム,ツボツボ,ヘラクロス,ニューラ,ヒメグマ,リングマ,マグマッグ,マグカルゴ,ウリムー,イノムー,サニーゴ,テッポウオ,オクタン,デリバード,マンタイン,エアームド,デルビル,ヘルガー,キングドラ,ゴマゾウ,ドンファン,ポリゴン2,オドシシ,ドーブル,バルキー,カポエラー,ムチュール,エレキッド,ブビィ,ミルタンク,ハピナス,ライコウ,エンテイ,スイクン,ヨーギラス,サナギラス,バンギラス,ルギア,ホウオウ,セレビィ".split(",");
 const IMG=id=>`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
 const $=id=>document.getElementById(id), socket=io();
-// 全角→半角(NFKC)に直してから不要文字を除去。IME変換中は触らず、確定時に整える
 const fixAscii=(v,re)=>String(v).normalize("NFKC").replace(re,"");
 const normId=v=>fixAscii(v,/[^A-Za-z0-9]/g).toLowerCase();
+
 function bindFix(el,fn,after){
   const run=()=>{const v=fn(el.value);if(v!==el.value)el.value=v;if(after)after()};
   el.addEventListener("input",e=>{if(!e.isComposing)run()});
   el.addEventListener("compositionend",run);
 }
 bindFix($("rm"),normId);
+
 const showLeave=on=>$("leave").style.display=on?"block":"none";
 $("leave").onclick=()=>{
   if($("game").style.display==="grid"&&!confirm("退出すると対戦が終了します。退出しますか？"))return;
-  location.reload(); // 接続が切れ、サーバー側で退出処理される
+  location.reload();
 };
+
 let me=-1, turn=0, names=["1P","2P"], over=false;
 
 $("go").onclick=()=>{
@@ -161,22 +163,31 @@ $("go").onclick=()=>{
   if(!room)return $("err").textContent="ルームIDは半角英数字で入力してください";
   socket.emit("join",{room,name:$("nm").value});
 };
+
+$("solo").onclick=()=>{
+  socket.emit("solo",{name:$("nm").value});
+};
+
 socket.on("err",m=>$("err").textContent=m);
 socket.on("joined",({idx})=>{me=idx});
+
 let myReady=false;
 const IDS=["sT","sP","sB","sBs","cN0","cN1","rK","rJ","sH","hOn","hT","hE","hEs","hD"];
 let isSolo=false;
+
 const sendSet=()=>socket.emit("settings",{time:$("sT").value,penalty:$("sP").value,bonusOn:$("sB").checked,bonus:$("sBs").value,
   counts:[$("cN0").value,$("cN1").value],regions:{kanto:$("rK").checked,johto:$("rJ").checked},hint:$("sH").checked,
   handi:{on:$("hOn").checked,target:$("hT").value,extraOn:$("hE").checked,extra:$("hEs").value,digitOn:$("hD").checked}});
+
 IDS.forEach(id=>$(id).onchange=e=>{sendSet();if(e.target.type==="number")e.target.blur()});
 $("detb").onclick=()=>{const o=$("set").classList.toggle("open");$("detb").textContent=o?"詳細設定 ▲":"詳細設定 ▼"};
 $("rdy").onclick=()=>socket.emit("ready",!myReady);
 $("again").onclick=()=>socket.emit("rematch");
-$("solo").onclick=()=>socket.emit("solo",{name:$("nm").value});
-socket.on("countdown",({n})=>{ // 開始前の5秒カウントダウン
+
+socket.on("countdown",({n})=>{
   $("cd").style.display="flex";const e=$("cdn");e.textContent=n;e.style.animation="none";void e.offsetWidth;e.style.animation="";
 });
+
 socket.on("room_state",s=>{
   names=s.names.map((n,i)=>n||`${i+1}P`);isSolo=!!s.solo;
   showLeave(true);
@@ -190,7 +201,7 @@ socket.on("room_state",s=>{
   $("set").classList.toggle("solo",isSolo);
   $("rt").textContent=isSolo?"ひとり練習（耐久）":`ルーム「${s.id}」`;
   $("rp").innerHTML=isSolo?`<div>${s.names[0]}さん：持ち時間が尽きるまで挑戦</div>`:[0,1].map(p=>s.names[p]
-    ?`<div>${p+1}P${p?"":"（ホスト）"}${p===me?"（あなた）":""}：${s.names[p]}　${s.ready[p]?"✔ 準備OK":"…未準備"}</div>`
+    ?`<div>${p+1}P${p?"":"（ホスト）"}${p===me?"（あなた）":""}：${s.names[p]} ${s.ready[p]?"✔ 準備OK":"…未準備"}</div>`
     :`<div>${p+1}P：参加待ち…</div>`).join("");
   const put=(id,v,chk)=>{const e=$(id);if(!chk&&document.activeElement===e)return;chk?e.checked=v:e.value=v};
   put("sT",st.time);put("sP",st.penalty);put("sB",st.bonusOn,1);put("sBs",st.bonus);
@@ -199,8 +210,8 @@ socket.on("room_state",s=>{
   put("hOn",hd.on,1);put("hT",hd.target);put("hE",hd.extraOn,1);put("hEs",hd.extra);put("hD",hd.digitOn,1);
   [0,1].forEach(p=>$("hT").options[p].textContent=`${p+1}P${s.names[p]?`（${s.names[p]}）`:""}`);
   $("cl0").textContent=isSolo?"":`（${s.names[0]||"1P"}）`;$("cl1").textContent=`（${s.names[1]||"2P"}）`;
-  $("set").classList.toggle("hon",hd.on); // ハンデOFFなら内容を非表示
-  IDS.forEach(id=>$(id).disabled=!host);$("sBs").disabled=!host||!st.bonusOn;$("hEs").disabled=!host||!hd.extraOn;
+  $("set").classList.toggle("hon",hd.on);
+  IDS.forEach(id=>$(id).disabled=!host);$("sBs").disabled=!host\vert{}\vert{}!st.bonusOn;$("hEs").disabled=!host||!hd.extraOn;
   $("rdy").disabled=!isSolo&&s.count<2;$("rdy").textContent=isSolo?"スタート":(myReady?"準備を取り消す":"準備OK");
   $("rmsg").textContent=isSolo?"スタートすると5秒のカウントダウンのあと開始。詳細設定で匹数・範囲・ヒントを変えられます"
     :s.count<2?"相手の参加を待っています":host?"設定を決めたら、両者が準備OKでスタート（設定を変えると準備はリセットされます）":"設定を確認して準備OKを押してください（設定はホストが決めます）";
@@ -220,6 +231,7 @@ function build(){
   $("r"+me).innerHTML=`<button id="sub">提出</button>`;
   $("sub").onclick=submit;
 }
+
 const fmt=t=>`${Math.floor(Math.max(t,0)/60)}:${String(Math.max(t,0)%60).padStart(2,"0")}`;
 function times(t){[0,1].forEach(p=>{const e=$("t"+p);e.textContent=fmt(t[p]);e.classList.toggle("low",t[p]<=10&&t[p]>0&&p===turn)})}
 function setTurn(t){
@@ -232,6 +244,7 @@ function setTurn(t){
   if($("sub"))$("sub").disabled=me!==t;
   const f=$(`i${me}_0`); if(me===t&&f)f.focus();
 }
+
 function cards(p,ids,hint){
   $("c"+p).innerHTML=ids.map((id,k)=>`<div class="card"><img src="${IMG(id)}" alt=""><b>${NAMES[id-1]}</b><div class="hint">${hint?`下1桁 <b>${hint[k]}</b>`:""}</div>
     <input id="i${p}_${k}" inputmode="numeric" maxlength="3" autocomplete="off" ${p===me?"":"readonly"}>
@@ -243,12 +256,14 @@ function cards(p,ids,hint){
   });
   setTurn(turn);
 }
+
 function submit(){
   if(me!==turn)return;
   const a=[...document.querySelectorAll(`#c${me} input`)].map(i=>i.value);
   if(a.some(v=>v===""))return $("s"+me).textContent=`${a.length}匹すべて入力してください`;
   socket.emit("submit",a);
 }
+
 function log(p,msg,cls){const l=$("l"+p);l.insertAdjacentHTML("afterbegin",`<div class="${cls}">${msg}</div>`)}
 function fx(p,kind,text){
   const P=$("P"+p),x=$("x"+p);
@@ -268,21 +283,25 @@ socket.on("state",s=>{
   [0,1].forEach(p=>{$("n"+p).innerHTML=`${names[p]}${p===me?"（あなた）":""}${tag(p)}`;$("t"+p).dataset.v=s.time[p]});
   times(s.time);setTurn(s.turn);
 });
+
 socket.on("question_updated",({player,ids,hint})=>{
   if(!$("P0"))build();
   cards(player,ids,hint);
   log(player,`新しい${ids.length}匹が出題されました`);
   if(player!==me)$("s"+player).textContent=`${names[player]}が考え中…`;
 });
+
 socket.on("tick",({time,turn:t})=>{
   [0,1].forEach(p=>$("t"+p).dataset.v=time[p]);
   const changed=t!==turn; turn=t; times(time);
-  if(changed)setTurn(t); // 手番が変わったときだけ更新（毎秒更新するとカーソルが飛ぶ）
+  if(changed)setTurn(t);
 });
+
 socket.on("typing",({player,filled})=>{
   filled.forEach((f,k)=>{const i=$(`i${player}_${k}`);if(i)i.value=f?"●●":""});
   if(player===turn&&player!==me)$("s"+player).textContent=`${names[player]}が入力中… ${filled.map(f=>f?"●":"○").join("")}`;
 });
+
 socket.on("answer_result",r=>{
   const n=names[r.player];
   if(r.ok){
@@ -303,11 +322,12 @@ socket.on("answer_result",r=>{
     if(r.player===me)$("sub").disabled=true;
     $("s"+r.player).textContent="不正解… 問題を入れ替えます";
     const bad=r.results.map((g,k)=>g?null:`#${r.ids[k]}`).filter(Boolean).join(", ");
-    log(r.player,`${n}が誤答（${r.wrong}匹不正解）！ -${r.penalty}秒　正解: ${bad}`,"ng");
+    log(r.player,`${n}が誤答（${r.wrong}匹不正解）！ -${r.penalty}秒 正解: ${bad}`,"ng");
     log(1-r.player,`${n}が誤答（${r.wrong}匹不正解）-${r.penalty}秒`,"ng");
   }
 });
-function lastHtml(l){ // 最終問題の正誤を結果画面にはっきり表示
+
+function lastHtml(l){
   if(!l)return "";
   const who=names[l.player]+(l.player===me?"（あなた）":""),w=l.kind==="wrong";
   const items=l.ids.map((id,k)=>{
@@ -317,6 +337,7 @@ function lastHtml(l){ // 最終問題の正誤を結果画面にはっきり表�
       <span>答え: ${w?(l.given[k]||"未入力"):"—"}</span><span>正解: #${id}</span></div>`}).join("");
   return `<div class="lh">最終問題（${who}）：${w?"誤答でタイムアップ":"時間切れ"}</div><div class="lrow">${items}</div>`;
 }
+
 socket.on("game_over",({solo,winner,time,stats,last})=>{
   over=true;
   const cols=solo?[0]:[0,1],cls=i=>!solo&&i===winner?"w":"";
@@ -328,6 +349,7 @@ socket.on("game_over",({solo,winner,time,stats,last})=>{
   $("ovl").innerHTML=lastHtml(last);
   showLeave(false);$("ovn").textContent="";$("again").textContent=solo?"もう一度挑戦":"同じ相手でもう一度";$("again").style.display="";$("over").style.display="flex";
 });
+
 socket.on("opponent_left",()=>{
   $("cd").style.display="none";
   if(!over){$("ovt").textContent="対戦終了";$("ovs").innerHTML="";$("ovl").innerHTML=""}
