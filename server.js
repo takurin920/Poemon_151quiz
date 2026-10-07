@@ -90,7 +90,7 @@ io.on('connection', s => {
     if (r.solo || r.players.length >= 2) return s.emit('err', 'このルームは満員です');
     const idx = r.players.length;
     r.players.push(s.id); r.names[idx] = cleanName(name) || `${idx + 1}P`;
-    r.ready = [false, false]; r.phase = idx === 1 ? 'lobby' : 'waiting';
+    r.ready = [false, false]; r.phase = 'lobby';
     s.join(room); s.data = { room, idx };
     s.emit('joined', { idx }); sendRoom(r);
   });
